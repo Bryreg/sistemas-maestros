@@ -56,6 +56,20 @@ const CONTEXTO = [
   'Escribí tu entregable COMPLETO (no un resumen) en el archivo de salida indicado. Tu retorno estructurado NO lo ve un humano: es data para el orquestador.',
 ].join('\n')
 
+// Regla de verificación para TODOS los agentes de construcción y auditoría.
+// Nació de una fase real: cuatro agentes decidieron por su cuenta que
+// "verificar" era "correr la suite entera", en paralelo, en el mismo
+// directorio y en una máquina de 4 cores — 40+ minutos sin que ninguna
+// terminara, y bases SQLite borrándose entre sí. La suite completa es un
+// recurso compartido: la corre UNA sola vez el paso de verificación, en serie.
+const REGLA_VERIFICACION =
+  'REGLA DE VERIFICACIÓN (obligatoria, vale para builders y auditores): ' +
+  'corré SOLO los tests de tu territorio — los archivos de test que escribiste o que cubren lo que tocaste (p. ej. `pytest tests/test_mi_modulo.py`, `vitest src/mi-componente`), más el typecheck. ' +
+  'NUNCA corras la suite completa del proyecto: otros agentes trabajan en paralelo sobre el mismo árbol y N suites simultáneas se pisan (CPU, archivos temporales, bases de prueba borradas por el teardown ajeno) y no terminan nunca. ' +
+  'La suite completa la corre UNA sola vez, en serie, el paso de verificación del orquestador cuando el equipo ya terminó. ' +
+  'Tampoco lances builds que borren y reescriban artefactos compartidos (p. ej. `npm run build` sobre dist/ que el backend sirve) — un typecheck alcanza para tu entregable; el build va en verificación. ' +
+  'Si tus tests necesitan un directorio temporal, usá uno PROPIO (TMPDIR=/tmp/pt-<tu-id>) para que tu teardown no borre archivos de otro agente.'
+
 const EQUIPO_SCHEMA = {
   type: 'object',
   required: ['analisis', 'equipo'],
@@ -136,7 +150,8 @@ const plan = await agent(
   'PEDIDO DEL USUARIO: "' + PEDIDO + '"\n\n' +
   'Tu primera tarea es DEFINIR EL EQUIPO: qué agentes hacen falta para ESTE problema en concreto. No hay roster fijo — el equipo sale del análisis del pedido, no de una plantilla.\n' +
   'Para decidir con fundamento: (1) leé ' + (SPEC ? SPEC + ' y ' : '') + (CONTEXTO_FILES.join(', ') || 'los docs del proyecto') + ' completos; (2) explorá la estructura real del repo para ver dónde está la complejidad de verdad; (3) revisá la librería de agentes (agente-*.md en el mismo directorio de tu definición) — es un catálogo, no un mandato: reutilizá los que calcen tal cual o adaptados, descartá los que no aporten, y creá roles NUEVOS si el problema pide un especialista que la librería no tiene.\n\n' +
-  'Reglas del equipo: entre 2 y 6 agentes; cada builder debe poder trabajar EN PARALELO sin pisar los archivos de otro (repartí el territorio explícitamente en las misiones); cada misión debe ser autocontenida y verificable. Asigná modelo por costo/beneficio real (sonnet=construir código, opus=razonamiento pesado, haiku=mecánico).',
+  'Reglas del equipo: entre 2 y 6 agentes; cada builder debe poder trabajar EN PARALELO sin pisar los archivos de otro (repartí el territorio explícitamente en las misiones); cada misión debe ser autocontenida y verificable. Asigná modelo por costo/beneficio real (sonnet=construir código, opus=razonamiento pesado, haiku=mecánico).\n' +
+  REGLA_VERIFICACION,
   { label: 'maestro:planificación', phase: 'Planificación', schema: EQUIPO_SCHEMA }
 )
 if (!plan || !plan.equipo || !plan.equipo.length) {
@@ -153,7 +168,8 @@ function misionCompleta(a, ajuste, iter) {
     'TU MISIÓN (definida por el Maestro):\n' + a.mision + '\n\n' +
     (a.definicion_base && a.definicion_base !== 'nueva' ? 'Tu definición base de rol (leela y respetá sus guardrails): ' + a.definicion_base + '\n' : '') +
     CONTEXTO + '\n\nTu archivo de salida: ' + outFile + ' (mkdir -p si hace falta).'
-  if (a.tipo === 'builder') p += '\nComo builder: escribí CÓDIGO REAL en el repo y verificalo con las herramientas del proyecto antes de terminar.'
+  if (a.tipo === 'builder') p += '\nComo builder: escribí CÓDIGO REAL en el repo y verificalo con las herramientas del proyecto antes de terminar — SOLO sobre tu territorio (tus archivos de test, tu typecheck), nunca la suite completa.'
+  p += '\n\n' + REGLA_VERIFICACION
   if (ajuste) {
     p += '\n\n=== AJUSTE DE ITERACIÓN ' + iter + ' (del Maestro, derivado del Conciliador) ===\n' + ajuste +
       '\nYa trabajaste en rondas anteriores: tu output previo está en ' + outFile + ' y tus cambios ya están en el repo. ACTUALIZÁ (no dupliques).'
@@ -227,7 +243,8 @@ phase('Entrega')
 const sintesis = await agent(
   'Sos el MAESTRO ORCHESTRATOR (Fable). Cerrá el ciclo. Equipo que definiste y por qué: ' + JSON.stringify({ analisis: plan.analisis, equipo: plan.equipo.map(a => ({ id: a.id, nombre: a.nombre, modelo: a.modelo, tipo: a.tipo })) }) + '\n' +
   'Historial de iteraciones: ' + JSON.stringify(historial) + '\nVeredicto final del Conciliador: ' + JSON.stringify(veredicto) + '\n' +
-  'Antes de redactar, VERIFICÁ con las herramientas del proyecto (tests, typecheck, lo que el repo defina' + (SPEC ? ', y el checklist de ' + SPEC : '') + ') — contra el código, no contra los reportes.\n' +
+  'Antes de redactar, VERIFICÁ con las herramientas del proyecto (tests, typecheck, lo que el repo defina' + (SPEC ? ', y el checklist de ' + SPEC : '') + ') — contra el código, no contra los reportes. ' +
+  'Acá y SOLO acá corre la suite completa: UNA vez (dos si el proyecto lo pide), en SERIE, con el árbol quieto — ningún otro agente está trabajando ya. Antes de correrla confirmá que no quede ningún proceso de test o build huérfano (ps), y no lances builds del frontend mientras la suite corre: un build que borra y reescribe dist/ a mitad de corrida produce errores falsos.\n' +
   'Leé los outputs completos en ' + OUT + '/ y redactá la ENTREGA FINAL en ' + OUT + '/ENTREGA.md: qué equipo armaste y por qué (parte del valor del framework), qué construyó/halló cada agente (con archivos), coherencia, verificación, conflictos NO resueltos (explícitos, nunca ocultos), próximos pasos priorizados. Español, directo, sin humo.',
   { label: 'maestro:entrega', phase: 'Entrega' }
 )

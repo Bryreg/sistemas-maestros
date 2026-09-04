@@ -40,6 +40,10 @@ Cuando el Conciliador detecta un conflicto bloqueante, el Maestro ajusta el prom
 
 `MAX_ITERATIONS` (default 3) evita loops infinitos de ajuste. Si se agota sin resolver todos los conflictos bloqueantes, el Maestro debe reportarlo explícitamente al usuario — nunca entregar un sistema con conflictos bloqueantes silenciados.
 
+### La suite completa es un recurso compartido
+
+Los agentes corren en paralelo sobre el MISMO árbol de trabajo. Si cada uno decide que "verificar" es "correr toda la suite", N suites simultáneas compiten por CPU y se pisan los archivos temporales (bases SQLite de prueba que el teardown de una borra a la otra); un `npm run build` a mitad de una corrida borra `dist/` y produce errores falsos. La regla, inyectada en cada misión por `REGLA_VERIFICACION` en `orquestador-general.js`: cada builder y auditor corre SOLO los tests de su territorio más el typecheck, con `TMPDIR` propio; la suite completa y el build los corre UNA sola vez, en serie, el paso de verificación final, con el árbol quieto y sin procesos huérfanos.
+
 ## Guardrails generales (qué evitar)
 
 - **No mezclar registro y caja real** sin dos capas explícitas (ver `DualModel` en `ARQUITECTURA.md`).
