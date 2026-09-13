@@ -2,7 +2,16 @@
 
 Framework de agentes de Claude Code para construir sistemas de software completos (frontend + backend + analytics) de forma coordinada, con revisión contable y legal integrada desde el diseño.
 
-En vez de que una sola sesión de IA construya todo secuencialmente, este framework lanza **5 agentes especializados en paralelo** sobre la misma spec (Frontend, Backend, Contador, Legal, Analytics), un **Conciliador** que valida que sus outputs sean coherentes entre sí, y un **Maestro Orquestador** que decide si el sistema está listo o si hace falta otra iteración.
+En vez de que una sola sesión de IA construya todo secuencialmente, este framework arma
+un **equipo ad-hoc para cada problema**: el **Maestro Orquestador** lee el pedido y el
+repo y define qué agentes hacen falta, ésos trabajan **en paralelo sobre territorios
+disjuntos**, un **Conciliador** valida que sus outputs sean coherentes entre sí contra
+el código real, y el Maestro decide si el sistema está listo o si hace falta otra ronda.
+
+**El equipo no es fijo.** Las definiciones de `.claude/skills/agentes/` son un
+**catálogo, no un mandato**: el Maestro reutiliza las que calzan, las adapta, descarta
+las que no aportan y crea roles nuevos cuando el problema pide un especialista que el
+catálogo no tiene.
 
 ## Qué incluye
 
@@ -11,7 +20,7 @@ sistemas-maestros/
 ├── .claude/
 │   ├── skills/
 │   │   ├── design/    → 7 skills de diseño reutilizables (banner, brand, design system, slides, UI styling, UI/UX intelligence)
-│   │   └── agentes/   → 7 agentes especializados (Frontend, Backend, Contador, Legal, Analytics, Conciliador, Maestro)
+│   │   └── agentes/   → catálogo de 8 roles (Frontend, Backend, Contador, Legal, Analytics, Datos, Conciliador, Maestro)
 │   ├── workflows/
 │   │   └── orquestador-general.js  → ciclo de fases: Disparo → Conciliación → Iteración
 │   ├── AGENTS.md      → reglas globales para todos los agentes
@@ -41,7 +50,7 @@ datos, ni el estado de ningún proyecto: la regla completa está en
 ## Cómo empezar
 
 1. Lee `CLAUDE.md` — el punto de entrada y el orden de lectura.
-2. Lee `docs/ARQUITECTURA.md` para entender el modelo de 7 agentes y el ciclo de fases.
+2. Lee `docs/ARQUITECTURA.md` para entender el equipo dinámico y el ciclo de fases.
 3. Lee `docs/FRONTERAS.md` para saber qué entra a este repo y qué va en el del proyecto.
 4. Adoptá el framework en tu proyecto nuevo:
 

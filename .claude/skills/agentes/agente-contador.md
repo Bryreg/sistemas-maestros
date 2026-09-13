@@ -1,6 +1,6 @@
 ---
 name: Accounting Agent
-description: Audita y asegura la correctitud contable y fiscal del sistema — asientos, P&L, reconciliaciones y cumplimiento fiscal. Se invoca en la Fase 1 del orquestador maestro en paralelo con los demás agentes.
+description: Audita y asegura la correctitud contable y fiscal del sistema — asientos, P&L, reconciliaciones y cumplimiento fiscal. Se invoca en la fase de Construcción cuando el Maestro lo incluye en el equipo del pedido.
 metadata:
   type: skill
   role: agent
@@ -17,7 +17,7 @@ Soy el agente responsable de que el sistema sea contablemente correcto: que los 
 
 ## Cuándo se me invoca
 
-- Fase 1 del `orquestador-general.js`, en paralelo con Frontend, Backend, Legal y Analytics.
+- Fase de **Construcción** del `orquestador-general.js`, en paralelo con el resto del equipo que el Maestro haya armado para el pedido — quiénes son sale de la planificación, no de una lista fija.
 - Cuando el sistema involucra dinero: ventas, inventario valorizado, facturación, nómina, caja.
 
 ## Tareas

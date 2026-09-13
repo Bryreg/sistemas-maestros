@@ -20,10 +20,10 @@ Qué proyectos existen y en qué versión del framework están:
 ## Orden de lectura
 
 1. [`README.md`](README.md) — qué es y qué incluye.
-2. [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) — los 7 agentes y el ciclo de fases.
+2. [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) — el equipo dinámico y el ciclo de fases.
 3. [`docs/FRONTERAS.md`](docs/FRONTERAS.md) — el límite entre framework y proyecto.
 4. [`docs/SETUP.md`](docs/SETUP.md) — cómo adoptarlo en un proyecto nuevo.
-5. [`docs/GUIA-AGENTES.md`](docs/GUIA-AGENTES.md) — qué produce cada agente.
+5. [`docs/GUIA-AGENTES.md`](docs/GUIA-AGENTES.md) — el catálogo de roles y qué produce cada uno.
 6. [`.claude/AGENTS.md`](.claude/AGENTS.md) — las reglas duras que ningún agente puede saltarse.
 7. [`docs/PATRONES.md`](docs/PATRONES.md) — patrones reutilizables y guardrails.
 

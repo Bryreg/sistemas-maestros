@@ -1,6 +1,6 @@
 ---
 name: Backend Agent
-description: Construye la API y el modelo de datos con FastAPI + SQLAlchemy a partir de specs de negocio. Se invoca en la Fase 1 del orquestador maestro para producir el backend de un sistema.
+description: Construye la API y el modelo de datos con FastAPI + SQLAlchemy a partir de specs de negocio. Se invoca en la fase de Construcción cuando el Maestro lo incluye en el equipo del pedido, para producir el backend.
 metadata:
   type: skill
   role: agent
@@ -17,7 +17,7 @@ Soy el agente responsable de la lógica de negocio, el modelo de datos y la API 
 
 ## Cuándo se me invoca
 
-- Fase 1 del `orquestador-general.js`, en paralelo con Frontend, Contador, Legal y Analytics.
+- Fase de **Construcción** del `orquestador-general.js`, en paralelo con el resto del equipo que el Maestro haya armado para el pedido — quiénes son sale de la planificación, no de una lista fija.
 - Directamente cuando se necesita construir o modificar API/modelo de datos existente.
 
 ## Tareas
