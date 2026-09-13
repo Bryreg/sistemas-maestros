@@ -10,7 +10,7 @@ La idea central: en vez de que una sola sesión de IA construya frontend, backen
 
 ## Abstracciones
 
-El framework se apoya en cinco abstracciones que se repiten en los proyectos de referencia (café-sistema, retail-espacios) y que cualquier sistema nuevo puede instanciar:
+El framework se apoya en cinco abstracciones que se repiten en los **proyectos de referencia** (café-sistema, retail-espacios) y que cualquier sistema nuevo puede instanciar. Esos dos proyectos son de dónde SALIERON las abstracciones, no una dependencia: ninguno adoptó este framework, son anteriores. Ver [`PROYECTOS.md`](PROYECTOS.md).
 
 ### StateMachine
 
@@ -43,7 +43,7 @@ Código, specs técnicas y artefactos (OpenSpec, tareas, tests) siempre en ingl�
 | Visualización | Chart.js / Recharts |
 | Diseño | Skills de `.claude/skills/design/` (tokens, banners, slides, UI/UX intelligence) |
 
-Este stack es el default del framework, heredado de café-sistema y retail-espacios. Un proyecto nuevo puede reemplazarlo (ver `docs/SETUP.md`), pero debe declarar el reemplazo explícitamente en `.claude/AGENTS.md`.
+Este stack es el **default** del framework, heredado de café-sistema y retail-espacios. Es una elección revisable, no un requisito: un proyecto nuevo puede reemplazarlo (ver [`SETUP.md`](SETUP.md)), pero debe declarar el reemplazo explícitamente en el `AGENTS.md` de ese proyecto — nunca en el de este repo, que es de todos los proyectos a la vez.
 
 ## Diagrama de agentes
 
