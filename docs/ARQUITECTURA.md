@@ -6,7 +6,9 @@
 
 El framework no construye un sistema específico: define un **equipo reutilizable de agentes** (skills) y un **workflow orquestador** que cualquier proyecto nuevo puede copiar y adaptar a su dominio.
 
-La idea central: en vez de que una sola sesión de IA construya frontend, backend, contabilidad y analytics de forma secuencial y sin chequeo cruzado, se lanzan 5 agentes especializados en paralelo sobre la misma spec, y un sexto agente (Conciliador) valida que sus outputs sean coherentes entre sí antes de considerar el trabajo terminado. Un séptimo agente (Maestro/Fable) orquesta el ciclo completo y decide cuándo iterar.
+La idea central: en vez de que una sola sesión de IA construya frontend, backend, contabilidad y analytics de forma secuencial y sin chequeo cruzado, un **equipo armado para ESE problema** trabaja en paralelo sobre territorios disjuntos, y el Conciliador valida que sus outputs sean coherentes entre sí —contra el código real, no contra lo que cada agente dice haber hecho— antes de considerar el trabajo terminado. El Maestro (Fable) orquesta el ciclo y decide cuándo iterar.
+
+**El equipo lo define el Maestro, no una plantilla.** En la fase de Planificación lee el pedido, explora el repo y arma un equipo de entre 2 y 6 agentes: el catálogo de `.claude/skills/agentes/` es material de consulta —se reutiliza, se adapta, se descarta y se inventan roles nuevos según el problema—. Un pedido de tres pantallas y un endpoint no necesita al Contador ni al Legal; uno de facturación electrónica necesita a los dos y quizá a un especialista que todavía no existe.
 
 ## Abstracciones
 
@@ -26,7 +28,9 @@ Ningún agente constructor (Frontend, Backend, Contador, Legal, Analytics) es re
 
 ### EventualConsistency
 
-Los agentes constructores trabajan en paralelo sobre la misma spec sin comunicarse entre sí durante la Fase 1. La coherencia no es instantánea — se logra al final de cada iteración vía el Conciliador. El Maestro tolera hasta `MAX_ITERATIONS` rondas de inconsistencia temporal antes de escalar al usuario.
+Los agentes constructores trabajan en paralelo sin comunicarse entre sí durante la fase de Construcción. La coherencia no es instantánea — se logra al final de cada iteración vía el Conciliador. El Maestro tolera hasta `MAX_ITERATIONS` (3) rondas de inconsistencia temporal antes de escalar al usuario.
+
+Trabajar en paralelo sobre el MISMO árbol impone su propia regla: cada agente verifica **sólo su territorio**, y la suite completa la corre una sola vez, en serie, el paso de verificación final. Ver `.claude/AGENTS.md § Verificación` — nació de cuatro suites simultáneas que se borraban las bases de prueba entre sí.
 
 ### I18nCode
 
@@ -54,26 +58,40 @@ Este stack es el **default** del framework, heredado de café-sistema y retail-e
                          │  .claude/skills/agentes/ │
                          │  maestro-fable.md        │
                          └────────────┬─────────────┘
-                                      │ dispara Fase 1 (paralelo)
-        ┌──────────────┬─────────────┼─────────────┬──────────────┐
-        ▼              ▼             ▼             ▼              ▼
-  ┌──────────┐   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
-  │ Frontend │   │ Backend  │  │ Contador │  │  Legal   │  │Analytics │
-  │  Agent   │   │  Agent   │  │  Agent   │  │  Agent   │  │  Agent   │
-  │  sonnet  │   │  sonnet  │  │  opus    │  │  opus    │  │  haiku   │
-  └────┬─────┘   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘
-       └──────────────┴─────────────┴─────────────┴──────────────┘
-                                      │ Fase 2
-                                      ▼
-                         ┌─────────────────────────┐
-                         │   Conciliador Agent      │
-                         │        (haiku)           │
-                         │  detecta conflicts[]      │
-                         └────────────┬─────────────┘
-                                      │ Fase 3 (si hay bloqueantes)
-                                      ▼
-                         Maestro ajusta prompts →
-                         relanza Fase 1 (hasta MAX_ITERATIONS)
+                          │ PLANIFICACIÓN: lee el pedido y el repo,
+                          │ elige del catálogo, adapta o inventa roles
+                          ▼
+              ┌───────────────────────────────────┐
+              │  EQUIPO AD-HOC — de 2 a 6 agentes │
+              │  territorios disjuntos            │
+              └───────────────┬───────────────────┘
+                              │ CONSTRUCCIÓN (paralelo)
+        ┌──────────────┬──────┴──────┬──────────────┐
+        ▼              ▼             ▼              ▼
+  ┌──────────┐   ┌──────────┐  ┌──────────┐   ┌──────────┐
+  │ del      │   │ del      │  │ adaptado │   │  NUEVO   │
+  │ catálogo │   │ catálogo │  │          │   │ (inventado
+  └────┬─────┘   └────┬─────┘  └────┬─────┘   └────┬─────┘  para el caso)
+       └──────────────┴─────────────┴──────────────┘
+                              │ CONCILIACIÓN
+                              ▼
+                 ┌─────────────────────────┐
+                 │   Conciliador Agent      │
+                 │  cruza outputs contra    │
+                 │  el código real (git     │
+                 │  diff) → conflicts[]     │
+                 └────────────┬─────────────┘
+                              │ ITERACIÓN (sólo los agentes
+                              ▼  con conflictos bloqueantes)
+                 Maestro ajusta misiones dirigidas
+                 y relanza — hasta MAX_ITERATIONS (3)
+                              │
+                              ▼ ENTREGA
+                 Síntesis: equipo elegido, historial,
+                 conflictos que quedaron abiertos
+
+              El catálogo de .claude/skills/agentes/ alimenta
+              la planificación; NO es el equipo.
 ```
 
 ## Ver también

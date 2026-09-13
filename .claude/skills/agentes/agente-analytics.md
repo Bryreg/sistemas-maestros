@@ -1,6 +1,6 @@
 ---
 name: Analytics Agent
-description: Diseña reportes, dashboards y métricas KPI a partir de los datos disponibles en el backend. Se invoca en la Fase 1 del orquestador maestro en paralelo con los demás agentes.
+description: Diseña reportes, dashboards y métricas KPI a partir de los datos disponibles en el backend. Se invoca en la fase de Construcción cuando el Maestro lo incluye en el equipo del pedido.
 metadata:
   type: skill
   role: agent
@@ -17,7 +17,7 @@ Soy el agente responsable de convertir los datos que el sistema captura en infor
 
 ## Cuándo se me invoca
 
-- Fase 1 del `orquestador-general.js`, en paralelo con Frontend, Backend, Contador y Legal.
+- Fase de **Construcción** del `orquestador-general.js`, en paralelo con el resto del equipo que el Maestro haya armado para el pedido — quiénes son sale de la planificación, no de una lista fija.
 - Cuando el sistema necesita reportes, dashboards gerenciales o exportables para presentación.
 
 ## Tareas
