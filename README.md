@@ -16,19 +16,42 @@ sistemas-maestros/
 │   │   └── orquestador-general.js  → ciclo de fases: Disparo → Conciliación → Iteración
 │   ├── AGENTS.md      → reglas globales para todos los agentes
 │   └── launch.json    → config de arranque local (plantilla)
-└── docs/
-    ├── ARQUITECTURA.md   → visión general, abstracciones, diagrama de agentes
-    ├── PATRONES.md       → patrones reutilizables y guardrails
-    ├── SETUP.md          → cómo adoptar el framework en un proyecto nuevo
-    └── GUIA-AGENTES.md   → qué hace cada agente, cómo se invoca, qué produce
+├── docs/
+│   ├── ARQUITECTURA.md   → visión general, abstracciones, diagrama de agentes
+│   ├── FRONTERAS.md      → qué entra a este repo y qué va en el del proyecto
+│   ├── PROYECTOS.md      → registro: qué proyectos hay y en qué versión están
+│   ├── PATRONES.md       → patrones reutilizables y guardrails
+│   ├── SETUP.md          → cómo adoptar el framework en un proyecto nuevo
+│   └── GUIA-AGENTES.md   → qué hace cada agente, cómo se invoca, qué produce
+├── scripts/
+│   └── adoptar.sh        → adopción reproducible, estampa la versión adoptada
+├── CLAUDE.md             → punto de entrada y orden de lectura
+├── VERSION
+└── CHANGELOG.md
 ```
+
+## Este repo no aloja proyectos
+
+Un sistema construido con este framework vive en **su propio repositorio**, con su
+propia copia de `.claude/`. Acá no entra código de producto, ni specs de negocio, ni
+datos, ni el estado de ningún proyecto: la regla completa está en
+[`docs/FRONTERAS.md`](docs/FRONTERAS.md) y el registro de proyectos en
+[`docs/PROYECTOS.md`](docs/PROYECTOS.md).
 
 ## Cómo empezar
 
-1. Lee `docs/ARQUITECTURA.md` para entender el modelo de 7 agentes y el ciclo de fases.
-2. Lee `docs/SETUP.md` para adoptar el framework en un proyecto nuevo (copiar `.claude/`, adaptar la spec de negocio, ajustar el workflow si hace falta).
-3. Lee `docs/GUIA-AGENTES.md` para el detalle de qué produce cada agente y con qué modelo corre.
-4. Invoca al Maestro Orquestador (`.claude/skills/agentes/maestro-fable.md`) con la idea del sistema que querés construir.
+1. Lee `CLAUDE.md` — el punto de entrada y el orden de lectura.
+2. Lee `docs/ARQUITECTURA.md` para entender el modelo de 7 agentes y el ciclo de fases.
+3. Lee `docs/FRONTERAS.md` para saber qué entra a este repo y qué va en el del proyecto.
+4. Adoptá el framework en tu proyecto nuevo:
+
+   ```bash
+   scripts/adoptar.sh /ruta/al/proyecto-nuevo "Nombre del proyecto"
+   ```
+
+   Ver `docs/SETUP.md` para qué hay que completar después.
+5. Lee `docs/GUIA-AGENTES.md` para el detalle de qué produce cada agente y con qué modelo corre.
+6. Invoca al Maestro Orquestador (`.claude/skills/agentes/maestro-fable.md`) con la idea del sistema que querés construir.
 
 ## Principio central
 

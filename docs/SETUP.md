@@ -6,13 +6,23 @@
 
 ## Pasos para adoptar el framework en un proyecto nuevo
 
-### 1. Copiar la carpeta `.claude/`
+### 1. Adoptar el framework
 
 ```bash
-cp -r sistemas-maestros/.claude/ mi-proyecto-nuevo/.claude/
+scripts/adoptar.sh /ruta/a/mi-proyecto-nuevo "Nombre del proyecto"
 ```
 
-Esto trae:
+Copia `.claude/`, **estampa la versión adoptada** en `.claude/FRAMEWORK`, y deja en el
+proyecto un `AGENTS.md` y un `docs/ESTADO.md` para completar. Se puede copiar a mano
+con `cp -r`, pero entonces no queda rastro de qué versión se copió — y sin ese rastro,
+meses después nadie puede decir si el proyecto quedó atrás del framework o si se
+apartó a propósito.
+
+El script **no pisa** una adopción existente: actualizar un proyecto que ya adoptó el
+framework se hace archivo por archivo, anotando la versión nueva en su
+`.claude/FRAMEWORK` y en [`PROYECTOS.md`](PROYECTOS.md).
+
+Lo que trae:
 - `skills/design/` — 7 skills de diseño listos para usar tal cual.
 - `skills/agentes/` — 7 agentes especializados, a adaptar al dominio.
 - `workflows/orquestador-general.js` — el ciclo de fases.
@@ -54,8 +64,14 @@ Para agregar un agente nuevo:
 - Confirmar que `.claude/launch.json` apunta a los comandos/puertos reales de arranque local.
 - Correr una iteración de prueba con una spec simple para validar que el Conciliador recibe outputs con la forma esperada de cada agente.
 
+### 6. Anotar el proyecto en el registro
+
+Agregar la fila en [`PROYECTOS.md`](PROYECTOS.md): repositorio, versión adoptada y
+qué sobreescribió. Es lo que después permite saber qué proyectos quedaron atrás.
+
 ## Qué NO hace este framework
 
 - No reemplaza la revisión humana final — el Legal Agent y el Contador Agent producen borradores/hallazgos, no aprobaciones legales o contables vinculantes.
 - No decide arquitectura de infraestructura/deploy — eso queda fuera del alcance de los 7 agentes.
 - No genera tests automáticamente salvo que se agregue explícitamente esa responsabilidad a Frontend/Backend Agent en el proyecto adoptante.
+- **No aloja proyectos.** El sistema construido vive en su propio repositorio; en éste sólo viven los agentes, los skills y los patrones. Ver [`FRONTERAS.md`](FRONTERAS.md).

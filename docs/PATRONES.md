@@ -1,6 +1,14 @@
 # Patrones — sistemas-maestros
 
-Patrones reutilizables extraídos de los proyectos de referencia del usuario (café-sistema, retail-espacios) que cualquier sistema nuevo construido con este framework debería considerar.
+Patrones reutilizables extraídos de los **proyectos de referencia** (café-sistema,
+retail-espacios) que cualquier sistema nuevo construido con este framework debería
+considerar.
+
+Los patrones están escritos **sin el dominio del que salieron**: «entidad que se
+alquila por período», no «góndola». Esa traducción es el requisito para que un patrón
+entre acá — ver [`FRONTERAS.md`](FRONTERAS.md). La mención al proyecto de origen se
+conserva a propósito: saber de dónde vino un patrón es lo que permite juzgarlo cuando
+el caso original ya se olvidó.
 
 ## Patrones de dominio
 
