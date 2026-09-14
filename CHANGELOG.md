@@ -12,6 +12,26 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 2.1.0 — 2026-09-14
+
+**MENOR**: capacidad nueva compatible en el orquestador. Un proyecto en 2.0.0 sigue
+funcionando igual; si adopta esto, tiene que copiar `orquestador-general.js` y anotar
+la versión en su `.claude/FRAMEWORK`.
+
+- **`args.base` en el orquestador**: el commit base del pedido. El orquestador humano
+  commitea snapshots mientras el equipo trabaja (para no perder horas de agentes si
+  el contenedor muere); sin este parámetro, el Conciliador y la entrega del Maestro
+  miran `git diff` contra un árbol ya commiteado, lo ven vacío y marcan como
+  conflicto todo lo que los agentes declaran. Con `base`, comparan contra ese commit
+  y contra `git status`. Nació en **restaurante-sistema**, pedido 1a: el primer run
+  se conciliaba contra tres snapshots ya pusheados. Opcional; sin `base` el
+  comportamiento es el de 2.0.0.
+- Lección registrada en `docs/PATRONES.md`: en un equipo paralelo, cada hook cruzado
+  entre dos territorios necesita un dueño del test de punta a punta. La entrega del
+  pedido 1a de restaurante-sistema encontró dos defectos exactamente en las costuras
+  que ningún agente probaba entero (un hook buscado en el módulo equivocado; un test
+  de carrera sobre una fixture compartida entre hilos).
+
 ## 2.0.0 — 2026-09-13
 
 **MAYOR**: cambia el contrato del workflow y entra un rol nuevo al catálogo. Un

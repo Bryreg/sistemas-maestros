@@ -48,6 +48,18 @@ Cuando el Conciliador detecta un conflicto bloqueante, el Maestro ajusta el prom
 
 `MAX_ITERATIONS` (default 3) evita loops infinitos de ajuste. Si se agota sin resolver todos los conflictos bloqueantes, el Maestro debe reportarlo explícitamente al usuario — nunca entregar un sistema con conflictos bloqueantes silenciados.
 
+### Cada costura entre territorios tiene dueño del test de punta a punta
+
+Cuando el Maestro reparte territorios disjuntos, los hooks cruzados (un dominio llama
+una función del otro) quedan con dueño en cada extremo pero sin dueño del test que
+los recorre enteros. Cada agente prueba su extremo llamando la función directo, y el
+hook puede no correr jamás por HTTP sin que ningún test lo note. Regla: el contrato
+interno que el Maestro deja para el equipo nombra, por cada hook cruzado, quién
+escribe el test de punta a punta; y ofrece una fixture común de «una sesión por
+request» para tests de carrera con hilos, porque una sesión compartida entre hilos
+muere antes de llegar al índice único. Origen: restaurante-sistema, pedido 1a
+(defectos D-1 y D-2 de la entrega, hallados por el Maestro en la verificación final).
+
 ### La suite completa es un recurso compartido
 
 Los agentes corren en paralelo sobre el MISMO árbol de trabajo. Si cada uno decide que "verificar" es "correr toda la suite", N suites simultáneas compiten por CPU y se pisan los archivos temporales (bases SQLite de prueba que el teardown de una borra a la otra); un `npm run build` a mitad de una corrida borra `dist/` y produce errores falsos. La regla, inyectada en cada misión por `REGLA_VERIFICACION` en `orquestador-general.js`: cada builder y auditor corre SOLO los tests de su territorio más el typecheck, con `TMPDIR` propio; la suite completa y el build los corre UNA sola vez, en serie, el paso de verificación final, con el árbol quieto y sin procesos huérfanos.

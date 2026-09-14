@@ -13,7 +13,7 @@ proyecto sube de versión.
 
 | Proyecto | Repositorio | Versión adoptada | Qué sobreescribió | Estado |
 |---|---|---|---|---|
-| Restaurante Sistema | `Bryreg/restaurante-sistema` | 2.0.0 | Régimen fiscal colombiano (INC 8 %, propina Ley 1935, documento equivalente electrónico); PIN personal sobre dispositivo compartido con sesión en cookie `httpOnly`; **no adopta** «atribución sin FK dura» (usa FK real + nombre congelado); base fija de caja; producto para varios restaurantes con organización → sede y funciones habilitables por flag; roles supervisor y responsable de caja. Detalle en su `AGENTS.md`. | en construcción |
+| Restaurante Sistema | `Bryreg/restaurante-sistema` | 2.0.0 (+ `args.base` de 2.1.0 aplicado a su copia del orquestador) | Régimen fiscal colombiano (INC 8 %, propina Ley 1935, documento equivalente electrónico); PIN personal sobre dispositivo compartido con sesión en cookie `httpOnly`; **no adopta** «atribución sin FK dura» (usa FK real + nombre congelado); base fija de caja; producto para varios restaurantes con organización → sede y funciones habilitables por flag; roles supervisor y responsable de caja. Detalle en su `AGENTS.md`. | en construcción |
 
 Cómo se llena cada columna:
 
