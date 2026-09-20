@@ -12,6 +12,41 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 2.3.0 — 2026-09-20
+
+**MENOR**: los 7 skills de diseño estaban **invisibles y vacíos**. Se restauran
+completos. Un proyecto en 2.2.0 sigue funcionando igual; para adoptar esto hay
+que borrar `mi-proyecto/.claude/skills/design/` y copiar en su lugar las siete
+carpetas nuevas de `.claude/skills/`.
+
+Qué pasó. Cuando los skills se adoptaron desde `retail-espacios` se copió sólo
+el `SKILL.md` de cada uno, renombrado a `design/<nombre>.md`. De **172 archivos
+quedaron 7**; de **4,7 MB quedaron 116 KB**. Y como Claude Code descubre un
+skill por `skills/<nombre>/SKILL.md`, aplanarlos a un `.md` suelto dentro de
+`design/` hizo que **ninguno se registrara como skill**: no aparecían en la
+lista de skills disponibles de ninguna sesión, en ningún proyecto adoptante.
+Servían sólo si alguien pasaba la ruta del archivo a mano, como documento.
+
+Lo que faltaba no era relleno. `ui-ux-pro-max` sola perdió `styles.csv` (88
+estilos, cada uno con paleta primaria y secundaria, efectos, para qué sirve,
+**para qué no**, soporte de modo oscuro, accesibilidad y rendimiento),
+`ui-reasoning.csv` (192 perfiles de producto con patrón recomendado, humor de
+color, humor tipográfico, reglas de decisión y antipatrones), más
+`colors.csv`, `typography.csv`, `google-fonts.csv`, `charts.csv`,
+`motion.csv`, `ux-guidelines.csv`, los datos por stack y el `search.py` que los
+consulta.
+
+Cómo se notó. Cinco directores de diseño independientes, trabajando sobre el
+mismo encargo en `restaurante-sistema`, entregaron **la misma dirección**:
+misma tipografía, misma paleta, misma metáfora. Sin catálogo que consultar,
+cinco instancias del mismo modelo improvisan desde los mismos priores y
+convergen. Con los datos restaurados, una consulta por «restaurant food
+ordering» devuelve recomendaciones que ninguna de las cinco había considerado.
+
+Qué se conservó de 2.2.0: el `SKILL.md` de cada skill es el markdown que el
+framework ya había curado (con la metadata `origin:` y las secciones que
+estaban en chino ya traducidas), no el original de `retail-espacios`.
+
 ## 2.2.0 — 2026-09-20
 
 **MENOR**: corrección de una falla sistemática del ciclo de conciliación. Un

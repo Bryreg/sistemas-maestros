@@ -45,7 +45,7 @@ Código, specs técnicas y artefactos (OpenSpec, tareas, tests) siempre en ingl�
 | Autenticación | JWT |
 | Estado cliente | Zustand (solo si hay sincronización real) |
 | Visualización | Chart.js / Recharts |
-| Diseño | Skills de `.claude/skills/design/` (tokens, banners, slides, UI/UX intelligence) |
+| Diseño | Los 7 skills de `.claude/skills/` — cada uno en su carpeta, con sus datos y scripts (tokens, banners, slides, UI/UX intelligence) |
 
 Este stack es el **default** del framework, heredado de café-sistema y retail-espacios. Es una elección revisable, no un requisito: un proyecto nuevo puede reemplazarlo (ver [`SETUP.md`](SETUP.md)), pero debe declarar el reemplazo explícitamente en el `AGENTS.md` de ese proyecto — nunca en el de este repo, que es de todos los proyectos a la vez.
 
