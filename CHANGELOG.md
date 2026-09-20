@@ -12,6 +12,38 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 2.2.0 — 2026-09-20
+
+**MENOR**: corrección de una falla sistemática del ciclo de conciliación. Un
+proyecto en 2.1.0 sigue funcionando igual; si adopta esto, copia
+`orquestador-general.js` y `.claude/skills/agentes/conciliador.md`, y anota la
+versión en su `.claude/FRAMEWORK`.
+
+- **El Conciliador verificaba contra el diff en vez de contra el árbol de
+  trabajo.** En este framework **los agentes nunca commitean** —commitea el
+  orquestador humano después de revisar—, así que en el momento en que corre el
+  Conciliador el trabajo del equipo está sin commitear, y un dominio nuevo está
+  además **sin trackear**: `git status` muestra la carpeta y no los archivos de
+  adentro, y `git diff` no lo muestra en absoluto. El resultado era que el
+  Conciliador declaraba «no está commiteado» como conflicto **bloqueante** sobre
+  archivos que existían y estaban completos.
+
+  Nació en **restaurante-sistema**, pedido 2c: `coherente: false` con tres
+  bloqueantes que decían exactamente eso, con los ocho archivos presentes. El
+  Maestro repitió el error al repartir los ajustes, porque el prompt le pedía no
+  cuestionar el veredicto del Conciliador. Una ronda entera de iteraciones
+  gastada en arreglar algo que no estaba roto.
+
+  Tres cambios, que van juntos:
+  - `ARBOL_ES_LA_VERDAD` en el orquestador reemplaza al `DIFF_HINT` anterior, que
+    además afirmaba lo contrario de lo que pasa («el trabajo YA ESTÁ
+    COMMITEADO»). `args.base` sigue siendo útil, pero como complemento.
+  - Guardrail nuevo en `conciliador.md`: «no está commiteado» **nunca** es un
+    conflicto; es el estado esperado de todo el trabajo del equipo.
+  - El prompt de ajustes del Maestro gana **una sola excepción** a «no
+    modifiques el veredicto del Conciliador»: todo conflicto que afirme que algo
+    falta se verifica abriendo el archivo antes de mandar a nadie a rehacerlo.
+
 ## 2.1.0 — 2026-09-14
 
 **MENOR**: capacidad nueva compatible en el orquestador. Un proyecto en 2.0.0 sigue
