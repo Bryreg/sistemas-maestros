@@ -21,15 +21,86 @@ qué es de este framework y qué vino de afuera, con su origen y su versión.
   --skill brag`, o copiar `skills/brag/` del repositorio upstream sobre
   `.claude/skills/brag/`.
 
-**Dependencia que NO viene incluida y sin la cual no produce video**: su paso 3
-lee las skills de dominio de Hyperframes (`hyperframes-core`,
-`hyperframes-animation`, `hyperframes-creative`, `hyperframes-keyframes`,
-`hyperframes-cli`). No están en este repositorio ni en el upstream de `brag`:
-hay que instalarlas aparte antes de usarla.
+Su paso 3 no lo resuelve sola: delega la composición y el render a las skills
+de dominio de Hyperframes, que están abajo. **Desde 2.5.0 vienen incluidas**;
+en 2.4.0 no venían y el skill se registraba pero no producía video.
 
 **Pesa 17 MB**, casi todo pistas de música en `assets/music/`. Es el skill más
 pesado del framework por un margen grande, y viaja a cada proyecto que adopte.
 Si eso molesta, la salida es adoptarlo por proyecto en vez de por framework.
+
+### Hyperframes — `heygen-com/hyperframes`
+
+El motor que `brag` usa para componer y renderizar. Son dos cosas separadas y
+conviene no confundirlas:
+
+- **El CLI** (`npx hyperframes`, paquete npm `hyperframes`, Apache-2.0) **no
+  se guarda acá**: se baja solo al invocarlo. Verificado con 0.8.59.
+- **Las skills de dominio** sí se guardan, porque son las que el agente lee
+  para saber escribir una composición.
+
+De las 21 que publica el upstream se adoptaron **siete**: las cinco que
+`brag` nombra —`hyperframes-core`, `-animation`, `-creative`, `-keyframes`,
+`-cli`— más `media-use` y `hyperframes-registry`, que son las únicas dos que
+esas cinco citan y que sin ellas quedarían colgadas (`media-use` resuelve
+música y SFX; `hyperframes-registry` es el catálogo de ~400 bloques y efectos
+ya hechos). Son 326 archivos y 5,2 MB, contra 19 MB de las 21.
+
+**Las catorce que faltan se dejaron afuera a propósito**, no por peso: entre
+ellas están los orquestadores `hyperframes` y `product-launch-video`, y el
+`SKILL.md` de `brag` dice literalmente que no hay que entrar en la entrevista
+de intención del primero ni rutear al workflow genérico del segundo. Tenerlas
+instaladas es invitar al agente a tomar el camino que `brag` prohíbe.
+
+- **Versión adoptada**: skills del commit `6f6d242` del upstream, alineadas
+  con el CLI `0.8.59`. Licencia en `LICENSE-UPSTREAM-hyperframes`.
+- **Cómo actualizar**: `npx hyperframes skills update` **no sirve para esto**
+  — instala en `~/.claude/skills/` y en `~/.agents/skills/`, o sea global y
+  fuera del repo, y en un contenedor efímero eso se pierde. Para actualizar
+  acá hay que volver a copiar las siete carpetas desde el upstream y subir la
+  versión del framework. Lo que sí sirve es `npx hyperframes skills check`,
+  que dice si lo instalado quedó atrás.
+
+#### El motor necesita tres cosas del sistema que no viajan en el repo
+
+Y las tres fallan de una forma que no se parece a su causa. Para eso está
+`scripts/preparar-video.sh`, que las deja listas y es idempotente:
+
+```bash
+scripts/preparar-video.sh              # prepara y verifica
+scripts/preparar-video.sh --verificar  # sólo informa
+```
+
+1. **Un ffmpeg completo.** No alcanza con que `ffmpeg` exista. El que trae
+   Playwright en `/opt/pw-browsers/` está compilado con `--disable-everything`:
+   encodea webm/VP8, no tiene H.264 ni `ffprobe`, y el render muere al final,
+   después de gastar todos los frames. El script pregunta por `libx264`, no
+   por el nombre del binario.
+2. **Un navegador que arranque.** El que se baja puppeteer existe y aun así no
+   arranca acá (`SIGTERM, ETIMEDOUT`). Hay que apuntarle a uno que sí con
+   `HYPERFRAMES_BROWSER_PATH`. El script lo prueba arrancándolo, que es la
+   única forma de saberlo.
+3. **La CA del proxy en el almacén del navegador.** Chrome **no lee el almacén
+   del sistema**: lee su propia base NSS en `~/.pki/nssdb`. Que la CA esté en
+   `/etc/ssl/certs` no dice nada. Sin esto el navegador no baja GSAP del CDN y
+   `hyperframes check` falla con `ERR_CERT_AUTHORITY_INVALID`, que parece un
+   problema de la composición y no lo es.
+
+#### Verificado de punta a punta, no sólo instalado
+
+Con el entorno preparado, en este mismo contenedor:
+
+- `npx hyperframes doctor` — todo lo obligatorio en verde.
+- `npx hyperframes check` sobre una composición con animación — **`Check
+  passed`**, que es exactamente la única compuerta que `brag` pone antes de
+  renderizar.
+- `npx hyperframes render` — MP4 de 15,0 s, 1920×1080, H.264 + AAC, 11 MB, en
+  53 s. Se extrajeron frames y tienen imagen real.
+
+Lo que quedó en rojo es opcional y sólo importa para usos que `brag` no
+necesita: `whisper-cpp` (transcripción), Kokoro (sólo con `--voice`), MusicGen
+(sólo como música de reemplazo, y `brag` trae la suya) y Docker (backend de
+render alternativo).
 
 ### Las siete de diseño — `nextlevelbuilder/ui-ux-pro-max-skill`
 

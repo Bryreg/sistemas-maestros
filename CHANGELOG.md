@@ -12,6 +12,60 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 2.5.0 — 2026-09-21
+
+### Agregado
+
+- **Las siete skills de dominio de Hyperframes**, de `heygen-com/hyperframes`
+  (Apache-2.0, commit `6f6d242`, alineadas con el CLI `0.8.59`). Con esto
+  `brag` deja de ser un skill que se registra y no produce nada: 2.4.0 lo
+  incorporó sin su motor, y esta versión cierra esa deuda.
+
+  De las 21 que publica el upstream se adoptaron siete: las cinco que `brag`
+  nombra —`hyperframes-core`, `-animation`, `-creative`, `-keyframes`,
+  `-cli`— más `media-use` y `hyperframes-registry`, las únicas dos que esas
+  cinco citan. 326 archivos, 5,2 MB, contra 19 MB de las 21.
+
+  **Las catorce que faltan se dejaron afuera a propósito.** Entre ellas están
+  los orquestadores `hyperframes` y `product-launch-video`, y el `SKILL.md`
+  de `brag` dice literalmente que no hay que entrar en la entrevista de
+  intención del primero ni rutear al workflow genérico del segundo. Tenerlas
+  instaladas es invitar al agente a tomar el camino que `brag` prohíbe.
+
+  El CLI (`npx hyperframes`) **no** se guarda: se baja al invocarlo.
+  `npx hyperframes skills update` no sirve para actualizar esto — instala en
+  `~/.claude/skills/`, global y fuera del repo. Sí sirve
+  `npx hyperframes skills check`, que dice si lo guardado quedó atrás.
+
+- **`scripts/preparar-video.sh`**, porque el motor necesita tres cosas del
+  sistema que no viajan en el repo y que fallan de formas que no se parecen a
+  su causa:
+
+  - Un **ffmpeg completo**. No alcanza con que el binario exista: el que trae
+    Playwright está compilado con `--disable-everything` y encodea webm/VP8,
+    sin H.264 ni `ffprobe`. El render muere al final, después de gastar todos
+    los frames. El script pregunta por `libx264`, no por el nombre.
+  - Un **navegador que arranque**. El que baja puppeteer existe y aun así no
+    arranca (`SIGTERM, ETIMEDOUT`); hay que apuntar `HYPERFRAMES_BROWSER_PATH`
+    a otro. El script lo prueba arrancándolo.
+  - La **CA del proxy en el almacén del navegador**. Chrome no lee el almacén
+    del sistema: lee su NSS en `~/.pki/nssdb`. Sin eso no baja GSAP del CDN y
+    `hyperframes check` falla con `ERR_CERT_AUTHORITY_INVALID`, que parece un
+    problema de la composición y no lo es.
+
+  Las dos comprobaciones que pueden instalar algo se verificaron en rojo antes
+  que en verde: con un ffmpeg falso sin `libx264` y con un `~/.pki/nssdb`
+  vacío, el script las marca ✗.
+
+### Verificado
+
+No alcanza con que los archivos estén. En este contenedor, con el entorno
+preparado: `hyperframes doctor` con todo lo obligatorio en verde,
+`hyperframes check` devolviendo **`Check passed`** sobre una composición con
+animación —la única compuerta que `brag` pone antes de renderizar— y
+`hyperframes render` produciendo un MP4 de 15,0 s, 1920×1080, H.264 + AAC,
+11 MB, en 53 s, con frames que tienen imagen real.
+
 ## 2.4.0 — 2026-09-21
 
 ### Agregado
