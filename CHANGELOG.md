@@ -12,6 +12,40 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 2.4.0 — 2026-09-21
+
+### Agregado
+
+- **`brag`**, de `latent-spaces/brag` 0.3.0 (MIT, commit `57ce4c9`). Convierte
+  el proyecto en un video corto de lanzamiento, con música y copy para
+  compartir; lee el código directo, sin necesitar una URL viva ni capturas.
+  Su procedencia y su camino de actualización quedan en
+  `.claude/skills/PROCEDENCIA.md`, que se estrena con este cambio.
+
+  Dos cosas que hay que saber antes de usarla, y que están escritas al lado
+  del skill para que nadie las descubra a mitad de camino:
+
+  - **No viene con sus dependencias.** Su paso 3 lee las skills de dominio de
+    Hyperframes (`hyperframes-core`, `-animation`, `-creative`, `-keyframes`,
+    `-cli`), que no están ni acá ni en su upstream. Sin ellas no produce
+    video.
+  - **Pesa 17 MB**, casi todo pistas de música. Es el skill más pesado del
+    framework por un margen grande, y viaja a cada proyecto que adopte. Si
+    eso molesta, la salida es adoptarlo por proyecto y no por framework.
+
+- **`.claude/skills/PROCEDENCIA.md`**, que dice de dónde salió cada skill, en
+  qué versión está y cómo se actualiza. Un skill copiado sin rastro es un
+  skill que nadie sabe actualizar.
+
+  Además de `brag`, recoge lo que se aprendió usando las 7 de diseño y que
+  hasta ahora vivía sólo en `restaurante-sistema`: que **el catálogo está
+  indexado en inglés y una consulta en español falla en silencio**, que la
+  redacción de la consulta cambia por completo el sistema que devuelve, y que
+  hay que leer la columna «Do Not Use For» de los estilos que la propia
+  herramienta recomienda. Eso es conocimiento del framework, no de un
+  restaurante, y estaba del lado equivocado de la frontera
+  (`docs/FRONTERAS.md`).
+
 ## 2.3.0 — 2026-09-20
 
 **MENOR**: los 7 skills de diseño estaban **invisibles y vacíos**. Se restauran
