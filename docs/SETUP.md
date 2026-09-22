@@ -23,7 +23,9 @@ framework se hace archivo por archivo, anotando la versión nueva en su
 `.claude/FRAMEWORK` y en [`PROYECTOS.md`](PROYECTOS.md).
 
 Lo que trae:
-- `skills/design/` — 7 skills de diseño listos para usar tal cual.
+- `skills/<nombre>/` — 7 skills de diseño listos para usar tal cual, **cada uno en su carpeta**
+  con su `SKILL.md`, sus `data/` y sus `scripts/`. Claude Code descubre un skill por
+  `skills/<nombre>/SKILL.md`: aplanarlos a un `.md` suelto los vuelve invisibles.
 - `skills/agentes/` — el catálogo de 8 roles, del que el Maestro arma el equipo de cada fase.
 - `workflows/orquestador-general.js` — el ciclo de fases.
 - `AGENTS.md` — reglas globales, a revisar/ajustar.
@@ -48,9 +50,9 @@ En la mayoría de los casos **no hace falta tocar** `orquestador-general.js` —
 
 Para agregar un skill de diseño nuevo (ej. un skill de "reportes PDF"):
 
-1. Crear `mi-proyecto/.claude/skills/design/mi-skill-nuevo.md` siguiendo el formato de los 7 skills existentes (frontmatter `name`, `description`, `metadata`, luego secciones `When to Use`, referencias, scripts).
-2. Si el skill necesita scripts ejecutables, documentarlos en una tabla `## Scripts` como en `design.md` o `brand.md`.
-3. Referenciarlo desde `design.md` en la tabla de "Sub-skill Routing" si otros skills deben poder invocarlo.
+1. Crear `mi-proyecto/.claude/skills/mi-skill-nuevo/SKILL.md` siguiendo el formato de los 7 skills existentes (frontmatter `name`, `description`, `metadata`, luego secciones `When to Use`, referencias, scripts). **El archivo se llama `SKILL.md` y vive en su propia carpeta**: es así como Claude Code lo descubre.
+2. Si el skill necesita scripts o datos, van en `mi-skill-nuevo/scripts/` y `mi-skill-nuevo/data/`, y se documentan en una tabla `## Scripts` como en `design/SKILL.md` o `brand/SKILL.md`.
+3. Referenciarlo desde `design/SKILL.md` en la tabla de "Sub-skill Routing" si otros skills deben poder invocarlo.
 
 Para agregar un agente nuevo:
 

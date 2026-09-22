@@ -11,7 +11,7 @@ sola: se rompe de a un archivo por vez, siempre con una buena razón en el momen
 
 ## Qué entra
 
-- Agentes (`.claude/skills/agentes/`) y skills (`.claude/skills/design/`).
+- Agentes (`.claude/skills/agentes/`) y skills de diseño (`.claude/skills/<nombre>/`, uno por carpeta).
 - El workflow orquestador (`.claude/workflows/`).
 - Reglas globales (`.claude/AGENTS.md`): las que todo proyecto hereda.
 - Patrones **generalizados** (`docs/PATRONES.md`): el patrón, no el caso.

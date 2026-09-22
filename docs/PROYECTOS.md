@@ -11,10 +11,9 @@ proyecto sube de versión.
 
 ## Construidos con el framework
 
-_(todavía ninguno — este registro se estrena con el próximo)_
-
 | Proyecto | Repositorio | Versión adoptada | Qué sobreescribió | Estado |
 |---|---|---|---|---|
+| Restaurante Sistema | `Bryreg/restaurante-sistema` | 2.5.0 | Régimen fiscal colombiano (INC 8 %, propina Ley 1935, documento equivalente electrónico); PIN personal sobre dispositivo compartido con sesión en cookie `httpOnly`; **no adopta** «atribución sin FK dura» (usa FK real + nombre congelado); base fija de caja; producto para varios restaurantes con organización → sede y funciones habilitables por flag; roles supervisor y responsable de caja. Detalle en su `AGENTS.md`. | en construcción |
 
 Cómo se llena cada columna:
 
@@ -44,3 +43,22 @@ bajo un nombre de rama de este framework**, y su base (`c4dc404`) no comparte
 historia con el `main` de retail. Es exactamente el tipo de mezcla que
 `docs/FRONTERAS.md` busca evitar: si se retoma, va como rama de retail con nombre
 de retail, no bajo este nombre.
+
+### Nota sobre los 7 skills de diseño
+
+Se adoptaron desde `retail-espacios` copiando **sólo el `SKILL.md` de cada uno**,
+renombrado a `design/<nombre>.md`. De 172 archivos quedaron 7; de 4,7 MB
+quedaron 116 KB. Y como Claude Code descubre un skill por
+`skills/<nombre>/SKILL.md`, aplanarlos dentro de `design/` hizo que **ninguno se
+registrara como skill**: no aparecían en la lista de skills disponibles de
+ninguna sesión, en ningún proyecto adoptante. Sólo servían si alguien pasaba la
+ruta del archivo a mano.
+
+Corregido en 2.3.0 (ver `CHANGELOG.md`). La pista de que el aplanado fue un
+descuido y no una decisión estaba en el propio `.gitignore` del framework, que
+ya traía `.claude/skills/**/scripts/__pycache__/` — una ruta que sólo existe si
+los skills viven en carpetas con scripts.
+
+**La lección para la próxima adopción**: copiar un skill es copiar su carpeta
+entera. Un `SKILL.md` que describe datos buscables y viaja sin ellos no es un
+skill degradado, es un documento que miente sobre lo que puede hacer.

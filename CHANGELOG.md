@@ -12,6 +12,181 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 2.5.0 — 2026-09-21
+
+### Agregado
+
+- **Las siete skills de dominio de Hyperframes**, de `heygen-com/hyperframes`
+  (Apache-2.0, commit `6f6d242`, alineadas con el CLI `0.8.59`). Con esto
+  `brag` deja de ser un skill que se registra y no produce nada: 2.4.0 lo
+  incorporó sin su motor, y esta versión cierra esa deuda.
+
+  De las 21 que publica el upstream se adoptaron siete: las cinco que `brag`
+  nombra —`hyperframes-core`, `-animation`, `-creative`, `-keyframes`,
+  `-cli`— más `media-use` y `hyperframes-registry`, las únicas dos que esas
+  cinco citan. 326 archivos, 5,2 MB, contra 19 MB de las 21.
+
+  **Las catorce que faltan se dejaron afuera a propósito.** Entre ellas están
+  los orquestadores `hyperframes` y `product-launch-video`, y el `SKILL.md`
+  de `brag` dice literalmente que no hay que entrar en la entrevista de
+  intención del primero ni rutear al workflow genérico del segundo. Tenerlas
+  instaladas es invitar al agente a tomar el camino que `brag` prohíbe.
+
+  El CLI (`npx hyperframes`) **no** se guarda: se baja al invocarlo.
+  `npx hyperframes skills update` no sirve para actualizar esto — instala en
+  `~/.claude/skills/`, global y fuera del repo. Sí sirve
+  `npx hyperframes skills check`, que dice si lo guardado quedó atrás.
+
+- **`scripts/preparar-video.sh`**, porque el motor necesita tres cosas del
+  sistema que no viajan en el repo y que fallan de formas que no se parecen a
+  su causa:
+
+  - Un **ffmpeg completo**. No alcanza con que el binario exista: el que trae
+    Playwright está compilado con `--disable-everything` y encodea webm/VP8,
+    sin H.264 ni `ffprobe`. El render muere al final, después de gastar todos
+    los frames. El script pregunta por `libx264`, no por el nombre.
+  - Un **navegador que arranque**. El que baja puppeteer existe y aun así no
+    arranca (`SIGTERM, ETIMEDOUT`); hay que apuntar `HYPERFRAMES_BROWSER_PATH`
+    a otro. El script lo prueba arrancándolo.
+  - La **CA del proxy en el almacén del navegador**. Chrome no lee el almacén
+    del sistema: lee su NSS en `~/.pki/nssdb`. Sin eso no baja GSAP del CDN y
+    `hyperframes check` falla con `ERR_CERT_AUTHORITY_INVALID`, que parece un
+    problema de la composición y no lo es.
+
+  Las dos comprobaciones que pueden instalar algo se verificaron en rojo antes
+  que en verde: con un ffmpeg falso sin `libx264` y con un `~/.pki/nssdb`
+  vacío, el script las marca ✗.
+
+### Verificado
+
+No alcanza con que los archivos estén. En este contenedor, con el entorno
+preparado: `hyperframes doctor` con todo lo obligatorio en verde,
+`hyperframes check` devolviendo **`Check passed`** sobre una composición con
+animación —la única compuerta que `brag` pone antes de renderizar— y
+`hyperframes render` produciendo un MP4 de 15,0 s, 1920×1080, H.264 + AAC,
+11 MB, en 53 s, con frames que tienen imagen real.
+
+## 2.4.0 — 2026-09-21
+
+### Agregado
+
+- **`brag`**, de `latent-spaces/brag` 0.3.0 (MIT, commit `57ce4c9`). Convierte
+  el proyecto en un video corto de lanzamiento, con música y copy para
+  compartir; lee el código directo, sin necesitar una URL viva ni capturas.
+  Su procedencia y su camino de actualización quedan en
+  `.claude/skills/PROCEDENCIA.md`, que se estrena con este cambio.
+
+  Dos cosas que hay que saber antes de usarla, y que están escritas al lado
+  del skill para que nadie las descubra a mitad de camino:
+
+  - **No viene con sus dependencias.** Su paso 3 lee las skills de dominio de
+    Hyperframes (`hyperframes-core`, `-animation`, `-creative`, `-keyframes`,
+    `-cli`), que no están ni acá ni en su upstream. Sin ellas no produce
+    video.
+  - **Pesa 17 MB**, casi todo pistas de música. Es el skill más pesado del
+    framework por un margen grande, y viaja a cada proyecto que adopte. Si
+    eso molesta, la salida es adoptarlo por proyecto y no por framework.
+
+- **`.claude/skills/PROCEDENCIA.md`**, que dice de dónde salió cada skill, en
+  qué versión está y cómo se actualiza. Un skill copiado sin rastro es un
+  skill que nadie sabe actualizar.
+
+  Además de `brag`, recoge lo que se aprendió usando las 7 de diseño y que
+  hasta ahora vivía sólo en `restaurante-sistema`: que **el catálogo está
+  indexado en inglés y una consulta en español falla en silencio**, que la
+  redacción de la consulta cambia por completo el sistema que devuelve, y que
+  hay que leer la columna «Do Not Use For» de los estilos que la propia
+  herramienta recomienda. Eso es conocimiento del framework, no de un
+  restaurante, y estaba del lado equivocado de la frontera
+  (`docs/FRONTERAS.md`).
+
+## 2.3.0 — 2026-09-20
+
+**MENOR**: los 7 skills de diseño estaban **invisibles y vacíos**. Se restauran
+completos. Un proyecto en 2.2.0 sigue funcionando igual; para adoptar esto hay
+que borrar `mi-proyecto/.claude/skills/design/` y copiar en su lugar las siete
+carpetas nuevas de `.claude/skills/`.
+
+Qué pasó. Cuando los skills se adoptaron desde `retail-espacios` se copió sólo
+el `SKILL.md` de cada uno, renombrado a `design/<nombre>.md`. De **172 archivos
+quedaron 7**; de **4,7 MB quedaron 116 KB**. Y como Claude Code descubre un
+skill por `skills/<nombre>/SKILL.md`, aplanarlos a un `.md` suelto dentro de
+`design/` hizo que **ninguno se registrara como skill**: no aparecían en la
+lista de skills disponibles de ninguna sesión, en ningún proyecto adoptante.
+Servían sólo si alguien pasaba la ruta del archivo a mano, como documento.
+
+Lo que faltaba no era relleno. `ui-ux-pro-max` sola perdió `styles.csv` (88
+estilos, cada uno con paleta primaria y secundaria, efectos, para qué sirve,
+**para qué no**, soporte de modo oscuro, accesibilidad y rendimiento),
+`ui-reasoning.csv` (192 perfiles de producto con patrón recomendado, humor de
+color, humor tipográfico, reglas de decisión y antipatrones), más
+`colors.csv`, `typography.csv`, `google-fonts.csv`, `charts.csv`,
+`motion.csv`, `ux-guidelines.csv`, los datos por stack y el `search.py` que los
+consulta.
+
+Cómo se notó. Cinco directores de diseño independientes, trabajando sobre el
+mismo encargo en `restaurante-sistema`, entregaron **la misma dirección**:
+misma tipografía, misma paleta, misma metáfora. Sin catálogo que consultar,
+cinco instancias del mismo modelo improvisan desde los mismos priores y
+convergen. Con los datos restaurados, una consulta por «restaurant food
+ordering» devuelve recomendaciones que ninguna de las cinco había considerado.
+
+Qué se conservó de 2.2.0: el `SKILL.md` de cada skill es el markdown que el
+framework ya había curado (con la metadata `origin:` y las secciones que
+estaban en chino ya traducidas), no el original de `retail-espacios`.
+
+## 2.2.0 — 2026-09-20
+
+**MENOR**: corrección de una falla sistemática del ciclo de conciliación. Un
+proyecto en 2.1.0 sigue funcionando igual; si adopta esto, copia
+`orquestador-general.js` y `.claude/skills/agentes/conciliador.md`, y anota la
+versión en su `.claude/FRAMEWORK`.
+
+- **El Conciliador verificaba contra el diff en vez de contra el árbol de
+  trabajo.** En este framework **los agentes nunca commitean** —commitea el
+  orquestador humano después de revisar—, así que en el momento en que corre el
+  Conciliador el trabajo del equipo está sin commitear, y un dominio nuevo está
+  además **sin trackear**: `git status` muestra la carpeta y no los archivos de
+  adentro, y `git diff` no lo muestra en absoluto. El resultado era que el
+  Conciliador declaraba «no está commiteado» como conflicto **bloqueante** sobre
+  archivos que existían y estaban completos.
+
+  Nació en **restaurante-sistema**, pedido 2c: `coherente: false` con tres
+  bloqueantes que decían exactamente eso, con los ocho archivos presentes. El
+  Maestro repitió el error al repartir los ajustes, porque el prompt le pedía no
+  cuestionar el veredicto del Conciliador. Una ronda entera de iteraciones
+  gastada en arreglar algo que no estaba roto.
+
+  Tres cambios, que van juntos:
+  - `ARBOL_ES_LA_VERDAD` en el orquestador reemplaza al `DIFF_HINT` anterior, que
+    además afirmaba lo contrario de lo que pasa («el trabajo YA ESTÁ
+    COMMITEADO»). `args.base` sigue siendo útil, pero como complemento.
+  - Guardrail nuevo en `conciliador.md`: «no está commiteado» **nunca** es un
+    conflicto; es el estado esperado de todo el trabajo del equipo.
+  - El prompt de ajustes del Maestro gana **una sola excepción** a «no
+    modifiques el veredicto del Conciliador»: todo conflicto que afirme que algo
+    falta se verifica abriendo el archivo antes de mandar a nadie a rehacerlo.
+
+## 2.1.0 — 2026-09-14
+
+**MENOR**: capacidad nueva compatible en el orquestador. Un proyecto en 2.0.0 sigue
+funcionando igual; si adopta esto, tiene que copiar `orquestador-general.js` y anotar
+la versión en su `.claude/FRAMEWORK`.
+
+- **`args.base` en el orquestador**: el commit base del pedido. El orquestador humano
+  commitea snapshots mientras el equipo trabaja (para no perder horas de agentes si
+  el contenedor muere); sin este parámetro, el Conciliador y la entrega del Maestro
+  miran `git diff` contra un árbol ya commiteado, lo ven vacío y marcan como
+  conflicto todo lo que los agentes declaran. Con `base`, comparan contra ese commit
+  y contra `git status`. Nació en **restaurante-sistema**, pedido 1a: el primer run
+  se conciliaba contra tres snapshots ya pusheados. Opcional; sin `base` el
+  comportamiento es el de 2.0.0.
+- Lección registrada en `docs/PATRONES.md`: en un equipo paralelo, cada hook cruzado
+  entre dos territorios necesita un dueño del test de punta a punta. La entrega del
+  pedido 1a de restaurante-sistema encontró dos defectos exactamente en las costuras
+  que ningún agente probaba entero (un hook buscado en el módulo equivocado; un test
+  de carrera sobre una fixture compartida entre hilos).
+
 ## 2.0.0 — 2026-09-13
 
 **MAYOR**: cambia el contrato del workflow y entra un rol nuevo al catálogo. Un
