@@ -11,10 +11,9 @@ proyecto sube de versión.
 
 ## Construidos con el framework
 
-_(todavía ninguno — este registro se estrena con el próximo)_
-
 | Proyecto | Repositorio | Versión adoptada | Qué sobreescribió | Estado |
 |---|---|---|---|---|
+| Souvenir Sistema (POS + panel, tienda de souvenirs) | `Bryreg/souvenir-sistema` | 2.0.0 (2026-10-28, con `scripts/adoptar.sh`) | Sin shadcn/ui (componentes propios de los bocetos aprobados); Colombia/COP con comprobante interno (DIAN pendiente); roles vendedor/supervisor/admin; caja por dispositivo + PIN; no adopta «atribución sin FK dura»; una sede con flag para varias | en construcción |
 
 Cómo se llena cada columna:
 
