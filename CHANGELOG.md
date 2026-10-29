@@ -12,6 +12,30 @@ Versionado: `MAYOR.MENOR.PARCHE`.
   un patrón nuevo.
 - **PARCHE** — redacción, correcciones, documentación.
 
+## 3.0.0 — 2026-10-29
+
+**MAYOR**: el workflow ahora exige un dibujo aprobado antes de construir. Un
+proyecto que se actualice tiene que dibujar sus cambios antes de disparar el
+orquestador, y pasarle dónde está el dibujo.
+
+- **Regla global nueva en `.claude/AGENTS.md`: primero la idea, después el dibujo,
+  recién después el código.** La idea se desarrolla por escrito, se representa en
+  un dibujo (pantallas, flujo o modelo de datos) que el usuario revisa y corrige
+  hasta aprobarlo, y sólo entonces se programa. Los cambios de idea se hacen sobre
+  el dibujo, no sobre el código del repositorio. No aplica a arreglos que no
+  cambian lo que el sistema muestra, cómo se usa ni qué datos guarda.
+- **El orquestador la hace cumplir** (`REGLA_DIBUJO`). Argumento nuevo opcional
+  `args.dibujo`; si no viene, el Maestro busca el dibujo en `docs/diseno/`. Si el
+  pedido lo necesita y no existe, el workflow se detiene sin lanzar agentes y
+  devuelve `que_dibujar`. Con dibujo, cada misión lo cita y el Conciliador cruza lo
+  construido contra él: una diferencia no reportada como gap es bloqueante.
+- `EQUIPO_SCHEMA` suma el campo `dibujo` (`necesario`, `ruta`, `falta`), y
+  `equipo` deja de ser obligatorio para que el Maestro pueda detenerse.
+- Documentación al día: `maestro-fable.md` (paso nuevo y guardrail),
+  `ARQUITECTURA.md` (el dibujo aparece antes del Maestro en el diagrama),
+  `PATRONES.md` (patrón de proceso nuevo, con su procedencia), `SETUP.md` y
+  `GUIA-AGENTES.md` (el disparo lleva `dibujo`).
+
 ## 2.0.0 — 2026-09-13
 
 **MAYOR**: cambia el contrato del workflow y entra un rol nuevo al catálogo. Un

@@ -2,6 +2,33 @@
 
 Estas reglas aplican a **todos** los agentes del framework (Frontend, Backend, Contador, Legal, Analytics, Conciliador, Maestro), sin excepción. Un agente no puede "override-ar" estas reglas ni siquiera si el usuario lo pide dentro de una spec de negocio; cualquier excepción debe quedar documentada explícitamente en el `AGENTS.md` del proyecto adoptante, no asumida en silencio.
 
+## Primero la idea, después el dibujo, recién después el código
+
+Todo cambio sigue este orden, sin saltarse pasos:
+
+1. **Se desarrolla la idea.** Qué se quiere lograr, para quién, qué problema
+   resuelve y qué queda afuera. Por escrito, en palabras, antes de pensar en
+   archivos.
+2. **Se representa en un dibujo.** Pantallas, flujo o modelo de datos —lo que el
+   cambio toque— dibujados antes de tocar el repositorio: un mockup, un lienzo de
+   diseño, un diagrama, aunque sea un boceto en texto. El dibujo se guarda en el
+   repo del proyecto (por defecto en `docs/diseno/`) para que se pueda revisar y
+   citar.
+3. **El usuario revisa el dibujo y lo cambia hasta que esté bien.** Corregir un
+   dibujo cuesta minutos; corregir código ya escrito cuesta una iteración entera y
+   deja rastros. Los cambios de idea se hacen sobre el dibujo, no sobre el código.
+4. **Recién con el dibujo aprobado se programa.** El código implementa lo que el
+   dibujo muestra. Si al programar aparece algo que el dibujo no resuelve o que no
+   se puede hacer como está dibujado, se para, se actualiza el dibujo y se vuelve a
+   aprobar — nunca se resuelve distinto en silencio.
+
+Alcance: aplica a todo cambio que agregue o modifique lo que el sistema muestra,
+cómo se usa o qué datos guarda. Un arreglo que no cambia nada de eso (un error de
+tipeo, un bug cuyo comportamiento correcto ya está dibujado) no necesita dibujo
+nuevo. En el orquestador, el Maestro verifica esta regla en la Planificación y no
+lanza al equipo si falta el dibujo (ver `REGLA_DIBUJO` en
+`orquestador-general.js`).
+
 ## Lenguaje
 
 - **UI (de cara al usuario final)**: español, salvo que el proyecto adoptante declare otro idioma explícitamente.

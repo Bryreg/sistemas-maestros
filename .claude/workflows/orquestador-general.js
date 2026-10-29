@@ -10,11 +10,17 @@
  * Conciliador con veredicto estructurado, iteración hasta coherencia (máx 3
  * rondas) y entrega con historial.
  *
+ * Antes de todo eso, la regla de .claude/AGENTS.md: primero la idea, después
+ * el dibujo, recién después el código. Si el pedido cambia lo que el sistema
+ * muestra, cómo se usa o qué datos guarda, el Maestro exige el dibujo aprobado
+ * (args.dibujo, o lo busca en el repo) y sin él no lanza al equipo.
+ *
  * Uso (desde la raíz del repo instanciado, con este framework como submodule
  * o clonado):
  *   Workflow({ scriptPath: 'systems-master/.claude/workflows/orquestador-general.js',
  *              args: { pedido: '...', outputs: 'features/<slug>/outputs',
  *                      spec: 'features/<slug>/spec.md',
+ *                      dibujo: 'docs/diseno/<slug>/',
  *                      contexto: ['docs/ESTADO.md'] } })
  *
  * Ver: .claude/skills/agentes/maestro-fable.md · conciliador.md · agente-*.md
@@ -46,6 +52,7 @@ if (!PEDIDO) {
 const OUT = (args && args.outputs) || 'outputs'
 const SPEC = (args && args.spec) || null
 const CONTEXTO_FILES = (args && args.contexto) || []
+const DIBUJO = (args && args.dibujo) || null
 
 const CONTEXTO = [
   'CONTEXTO OBLIGATORIO — leé estos archivos ANTES de trabajar:',
@@ -70,13 +77,35 @@ const REGLA_VERIFICACION =
   'Tampoco lances builds que borren y reescriban artefactos compartidos (p. ej. `npm run build` sobre dist/ que el backend sirve) — un typecheck alcanza para tu entregable; el build va en verificación. ' +
   'Si tus tests necesitan un directorio temporal, usá uno PROPIO (TMPDIR=/tmp/pt-<tu-id>) para que tu teardown no borre archivos de otro agente.'
 
+// Primero la idea, después el dibujo, recién después el código. Corregir un
+// dibujo cuesta minutos; corregir código ya escrito por un equipo en paralelo
+// cuesta una iteración entera. Por eso el Maestro lo verifica ANTES de armar el
+// equipo, y si falta, el workflow se detiene en vez de construir a ciegas.
+const REGLA_DIBUJO =
+  'REGLA DEL DIBUJO (obligatoria, de .claude/AGENTS.md): primero se desarrolla la idea, después se representa en un dibujo (pantallas, flujo o modelo de datos: mockup, lienzo de diseño, diagrama o boceto en texto) que el usuario revisa y aprueba, y recién después se programa. ' +
+  (DIBUJO
+    ? 'El usuario indicó el dibujo aprobado en: ' + DIBUJO + ' — leelo COMPLETO y comprobá que cubre lo que el pedido cambia. '
+    : 'El usuario no indicó dibujo: buscalo en el repo (docs/diseno/ por defecto, y lo que citen la spec y el contexto). ') +
+  'Si el pedido agrega o modifica lo que el sistema muestra, cómo se usa o qué datos guarda, y no hay un dibujo aprobado que lo cubra, NO armes equipo: devolvé dibujo.necesario=true con dibujo.ruta vacía, y en dibujo.falta explicá qué hay que dibujar. ' +
+  'Un arreglo que no cambia nada de eso (un error de tipeo, un bug cuyo comportamiento correcto ya está dibujado) no necesita dibujo: dibujo.necesario=false. ' +
+  'Cuando haya dibujo, cada misión que redactes lo cita y le pide al agente implementar lo que muestra.'
+
 const EQUIPO_SCHEMA = {
   type: 'object',
-  required: ['analisis', 'equipo'],
+  required: ['analisis', 'dibujo'],
   properties: {
     analisis: { type: 'string', description: 'Qué dimensiones tiene el pedido y qué rol cubre cada una' },
+    dibujo: {
+      type: 'object',
+      required: ['necesario', 'ruta'],
+      properties: {
+        necesario: { type: 'boolean', description: 'true si el pedido cambia lo que el sistema muestra, cómo se usa o qué datos guarda' },
+        ruta: { type: 'string', description: 'Ruta del dibujo aprobado que cubre el pedido; vacía si falta o si no hace falta' },
+        falta: { type: 'string', description: 'Si falta el dibujo: qué hay que dibujar antes de programar' },
+      },
+    },
     equipo: {
-      type: 'array', minItems: 2, maxItems: 6,
+      type: 'array', minItems: 2, maxItems: 6, description: 'Se omite si falta el dibujo',
       items: {
         type: 'object',
         required: ['id', 'nombre', 'modelo', 'tipo', 'mision'],
@@ -150,10 +179,18 @@ const plan = await agent(
   'PEDIDO DEL USUARIO: "' + PEDIDO + '"\n\n' +
   'Tu primera tarea es DEFINIR EL EQUIPO: qué agentes hacen falta para ESTE problema en concreto. No hay roster fijo — el equipo sale del análisis del pedido, no de una plantilla.\n' +
   'Para decidir con fundamento: (1) leé ' + (SPEC ? SPEC + ' y ' : '') + (CONTEXTO_FILES.join(', ') || 'los docs del proyecto') + ' completos; (2) explorá la estructura real del repo para ver dónde está la complejidad de verdad; (3) revisá la librería de agentes (agente-*.md en el mismo directorio de tu definición) — es un catálogo, no un mandato: reutilizá los que calcen tal cual o adaptados, descartá los que no aporten, y creá roles NUEVOS si el problema pide un especialista que la librería no tiene.\n\n' +
+  REGLA_DIBUJO + '\n\n' +
   'Reglas del equipo: entre 2 y 6 agentes; cada builder debe poder trabajar EN PARALELO sin pisar los archivos de otro (repartí el territorio explícitamente en las misiones); cada misión debe ser autocontenida y verificable. Asigná modelo por costo/beneficio real (sonnet=construir código, opus=razonamiento pesado, haiku=mecánico).\n' +
   REGLA_VERIFICACION,
   { label: 'maestro:planificación', phase: 'Planificación', schema: EQUIPO_SCHEMA }
 )
+if (plan && plan.dibujo && plan.dibujo.necesario && !plan.dibujo.ruta) {
+  return {
+    error: 'Falta el dibujo — primero la idea, después el dibujo, recién después el código. No se lanzó ningún agente.',
+    que_dibujar: plan.dibujo.falta || null,
+    analisis: plan.analisis,
+  }
+}
 if (!plan || !plan.equipo || !plan.equipo.length) {
   return { error: 'El Maestro no devolvió equipo — abortado', plan }
 }
@@ -167,6 +204,7 @@ function misionCompleta(a, ajuste, iter) {
   let p = 'Sos "' + a.nombre + '" (' + a.tipo + ') del equipo sistemas-maestros armado para: "' + PEDIDO + '".\n\n' +
     'TU MISIÓN (definida por el Maestro):\n' + a.mision + '\n\n' +
     (a.definicion_base && a.definicion_base !== 'nueva' ? 'Tu definición base de rol (leela y respetá sus guardrails): ' + a.definicion_base + '\n' : '') +
+    (plan.dibujo.ruta ? 'DIBUJO APROBADO: ' + plan.dibujo.ruta + ' — leelo antes de escribir código. Implementá lo que muestra; si algo no cierra o no se puede hacer como está dibujado, reportalo en gaps — no lo resuelvas distinto en silencio.\n' : '') +
     CONTEXTO + '\n\nTu archivo de salida: ' + outFile + ' (mkdir -p si hace falta).'
   if (a.tipo === 'builder') p += '\nComo builder: escribí CÓDIGO REAL en el repo y verificalo con las herramientas del proyecto antes de terminar — SOLO sobre tu territorio (tus archivos de test, tu typecheck), nunca la suite completa.'
   p += '\n\n' + REGLA_VERIFICACION
@@ -205,7 +243,7 @@ for (let iter = 1; iter <= MAX_ITERATIONS; iter++) {
   veredicto = await agent(
     'Sos el CONCILIADOR AGENT de sistemas-maestros. Encontrá y leé tu definición (conciliador.md en ' + AGDIR + ') y cumplila al pie de la letra — generalizada: el equipo NO es un roster fijo; es este equipo dinámico definido por el Maestro:\n' + JSON.stringify(plan.equipo.map(a => ({ id: a.id, nombre: a.nombre, tipo: a.tipo, mision: a.mision }))) + '\n\n' +
     'Leé TODOS los outputs completos en ' + OUT + '/ (ls primero) y verificá contra el código real: git diff --stat y git diff sobre los directorios tocados (un output que declara algo que el diff no muestra ES un conflicto bloqueante).\n' +
-    'Cruces obligatorios según las misiones: contratos consumidos vs expuestos entre agentes; reglas de validación de los auditores vs lo que el código implementa de verdad; gaps declarados — ¿alguien los resolvió o siguen abiertos?; cumplimiento de las reglas del proyecto (' + (CONTEXTO_FILES.join(', ') || 'docs del repo') + ').\n' +
+    'Cruces obligatorios según las misiones: contratos consumidos vs expuestos entre agentes; reglas de validación de los auditores vs lo que el código implementa de verdad; gaps declarados — ¿alguien los resolvió o siguen abiertos?;' + (plan.dibujo.ruta ? ' lo construido vs el dibujo aprobado (' + plan.dibujo.ruta + ') — una diferencia no reportada como gap ES un conflicto bloqueante;' : '') + ' cumplimiento de las reglas del proyecto (' + (CONTEXTO_FILES.join(', ') || 'docs del repo') + ').\n' +
     'Resúmenes estructurados de esta ronda:\n' + JSON.stringify(latest) + '\n' +
     'En cada conflicto, origen y destino son ids del equipo de arriba. coherente=true SOLO sin bloqueantes. No propongas soluciones: describí con precisión accionable. Sé determinista.',
     { label: 'reconciliation r' + iter, phase: 'Conciliación', model: 'haiku', schema: CONCILIADOR_SCHEMA }

@@ -36,6 +36,12 @@ Motores de alerta/reposición (stock mínimo/crítico, etc.) deben forzar la con
 
 ## Patrones de proceso (multi-agente)
 
+### Primero la idea, después el dibujo, recién después el código
+
+Antes de tocar el repositorio, la idea se desarrolla por escrito y se representa en un dibujo —pantallas, flujo o modelo de datos— que el usuario revisa y corrige hasta aprobarlo. Recién entonces se programa, y el código implementa lo que el dibujo muestra. Corregir un dibujo cuesta minutos; corregir código ya escrito por un equipo en paralelo cuesta una iteración entera y deja rastros en el historial. Viene de café-sistema, donde las propuestas de pantalla se presentaron como tableros de diseño con datos reales antes de escribir una línea de frontend.
+
+**Guardrail**: el Maestro lo verifica en la Planificación (`REGLA_DIBUJO` en `orquestador-general.js`) y, si el pedido cambia lo que el sistema muestra, cómo se usa o qué datos guarda y no hay dibujo aprobado, no lanza al equipo. Con dibujo, el Conciliador cruza lo construido contra él: una diferencia no reportada como gap es un conflicto bloqueante.
+
 ### Conciliación como gate, no como sugerencia
 
 El Conciliador Agent no es opcional ni informativo: su veredicto (`coherente: true/false`) es el único criterio que el Maestro usa para decidir si el sistema está listo. Ningún agente constructor puede autodeclararse "terminado" sin pasar por esta validación cruzada.
