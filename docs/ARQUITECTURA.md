@@ -8,6 +8,8 @@ El framework no construye un sistema específico: define un **equipo reutilizabl
 
 La idea central: en vez de que una sola sesión de IA construya frontend, backend, contabilidad y analytics de forma secuencial y sin chequeo cruzado, un **equipo armado para ESE problema** trabaja en paralelo sobre territorios disjuntos, y el Conciliador valida que sus outputs sean coherentes entre sí —contra el código real, no contra lo que cada agente dice haber hecho— antes de considerar el trabajo terminado. El Maestro (Fable) orquesta el ciclo y decide cuándo iterar.
 
+**Primero la idea, después el dibujo, recién después el código.** Ningún agente programa un cambio que el usuario no vio dibujado: la idea se desarrolla, se dibuja, el usuario corrige el dibujo hasta aprobarlo, y sólo entonces arranca el ciclo. Los cambios de idea se hacen sobre el dibujo, que es barato, y no sobre el código. La regla está en `.claude/AGENTS.md` y el Maestro la hace cumplir en la Planificación.
+
 **El equipo lo define el Maestro, no una plantilla.** En la fase de Planificación lee el pedido, explora el repo y arma un equipo de entre 2 y 6 agentes: el catálogo de `.claude/skills/agentes/` es material de consulta —se reutiliza, se adapta, se descarta y se inventan roles nuevos según el problema—. Un pedido de tres pantallas y un endpoint no necesita al Contador ni al Legal; uno de facturación electrónica necesita a los dos y quizá a un especialista que todavía no existe.
 
 ## Abstracciones
@@ -52,13 +54,18 @@ Este stack es el **default** del framework, heredado de café-sistema y retail-e
 ## Diagrama de agentes
 
 ```
+        IDEA ──► DIBUJO ──► el usuario lo corrige ──► APROBADO
+        (antes de tocar el repo: pantallas, flujo o datos)   │
+                                      ┌──────────────────────┘
+                                      ▼
                          ┌─────────────────────────┐
                          │  Maestro Orchestrator    │
                          │  (Fable)                 │
                          │  .claude/skills/agentes/ │
                          │  maestro-fable.md        │
                          └────────────┬─────────────┘
-                          │ PLANIFICACIÓN: lee el pedido y el repo,
+                          │ PLANIFICACIÓN: verifica el dibujo aprobado
+                          │ (sin él, se detiene); lee el pedido y el repo,
                           │ elige del catálogo, adapta o inventa roles
                           ▼
               ┌───────────────────────────────────┐

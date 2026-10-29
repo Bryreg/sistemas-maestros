@@ -31,7 +31,7 @@ Lo que trae:
 
 ### 2. Adaptar la spec de negocio
 
-El Maestro Orchestrator (`maestro-fable.md`) recibe el pedido del usuario en lenguaje natural (`args.pedido`) y en la fase de Planificación **define qué agentes lanzar** para ese problema. No hace falta modificar el workflow para un dominio nuevo: la adaptación ocurre en la planificación, no en el código del orquestador.
+El Maestro Orchestrator (`maestro-fable.md`) recibe el pedido del usuario en lenguaje natural (`args.pedido`) y en la fase de Planificación **define qué agentes lanzar** para ese problema. Antes de eso exige el **dibujo aprobado** del cambio (`args.dibujo`, o lo busca en `docs/diseno/`): si el pedido cambia pantallas, flujo o datos y no hay dibujo, el workflow se detiene y devuelve qué hay que dibujar. No hace falta modificar el workflow para un dominio nuevo: la adaptación ocurre en la planificación, no en el código del orquestador.
 
 Si el dominio tiene reglas muy específicas (ej. régimen fiscal de un país distinto a Colombia, un stack distinto a FastAPI+React), documentarlo en `.claude/AGENTS.md` del proyecto nuevo para que todos los agentes lo hereden.
 

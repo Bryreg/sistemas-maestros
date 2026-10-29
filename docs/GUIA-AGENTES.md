@@ -81,6 +81,7 @@ Workflow({
     outputs: 'features/facturacion/outputs',
     spec:    'features/facturacion/spec.md',
     contexto: ['docs/ESTADO.md', 'AGENTS.md'],
+    dibujo:  'docs/diseno/facturacion/',   // el dibujo aprobado; sin él, el Maestro se detiene
   },
 })
 ```
